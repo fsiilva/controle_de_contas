@@ -1,0 +1,64 @@
+import java.sql.*;
+import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+public class ExcluirDocumento {
+
+    public static void main(String[] args) {
+        // Credenciais de conexão com o banco de dados
+        String url = "jdbc:mysql://localhost:3306/controle_de_contas";
+        String usuario = "root";
+        String senha = "#2024Aluno#";
+
+        Scanner scanner = new Scanner(System.in);
+
+        // Solicitar ao usuário o ID do documento que deseja excluir
+        System.out.println("Digite o ID do documento que deseja excluir:");
+        int idDocumento = scanner.nextInt();
+
+        // Declaração da conexão e do PreparedStatement
+        Connection conexao = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            // Registrar o driver JDBC
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Estabelecer a conexão com o banco de dados
+            conexao = DriverManager.getConnection(url, usuario, senha);
+
+            // Consulta SQL para excluir o documento com base no ID fornecido
+            String sql = "DELETE FROM documentos WHERE id = ?";
+
+            // Criar um PreparedStatement
+            pstmt = conexao.prepareStatement(sql);
+            pstmt.setInt(1, idDocumento);
+
+            // Executar a exclusão
+            int linhasAfetadas = pstmt.executeUpdate();
+
+            // Verificar se o documento foi excluído com sucesso
+            if (linhasAfetadas > 0) {
+                System.out.println("Documento com ID " + idDocumento + " excluído com sucesso!");
+            } else {
+                System.out.println("Não foi possível excluir o documento com ID " + idDocumento);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            // Fechar a conexão e o PreparedStatement
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conexao != null) conexao.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            scanner.close();
+        }
+    }
+}

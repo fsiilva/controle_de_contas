@@ -1,0 +1,89 @@
+import java.sql.*;
+import java.util.Scanner;
+import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class AtualizarDocumento {
+
+    public static void main(String[] args) {
+        // Credenciais de conexão com o banco de dados
+        String url = "jdbc:mysql://localhost:3306/controle_de_contas";
+        String usuario = "root";
+        String senha = "#2024Aluno#";
+
+        Scanner scanner = new Scanner(System.in);
+
+        // Solicitar ao usuário o ID do documento que deseja atualizar
+        System.out.println("Digite o ID do documento que deseja atualizar:");
+        int idDocumento = scanner.nextInt();
+        scanner.nextLine(); // Limpar o buffer do teclado
+
+        // Solicitar ao usuário os novos valores
+        System.out.println("Digite a nova data:");
+        String novaData = scanner.nextLine();
+
+        System.out.println("Digite o novo número do documento:");
+        String novoNumeroDocumento = scanner.nextLine();
+
+        System.out.println("Digite o novo valor do documento:");
+        double novoValorDocumento = scanner.nextDouble();
+        scanner.nextLine(); // Limpar o buffer do teclado
+
+        System.out.println("Digite o novo tipo do documento:");
+        String novoTipoDocumento = scanner.nextLine();
+
+        System.out.println("Digite a nova observação:");
+        String novaObservacao = scanner.nextLine();
+
+        // Declaração da conexão e do PreparedStatement
+        Connection conexao = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            // Registrar o driver JDBC
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+            // Estabelecer a conexão com o banco de dados
+            conexao = DriverManager.getConnection(url, usuario, senha);
+
+            // Consulta SQL para atualizar o documento com base no ID fornecido
+            String sql = "UPDATE documentos SET data = ?, numero_documento = ?, valor_documento = ?, tipo_documento = ?, observacao = ? WHERE id = ?";
+
+            // Criar um PreparedStatement
+            pstmt = conexao.prepareStatement(sql);
+            pstmt.setString(1, novaData);
+            pstmt.setString(2, novoNumeroDocumento);
+            pstmt.setDouble(3, novoValorDocumento);
+            pstmt.setString(4, novoTipoDocumento);
+            pstmt.setString(5, novaObservacao);
+            pstmt.setInt(6, idDocumento);
+
+            // Executar a atualização
+            int linhasAfetadas = pstmt.executeUpdate();
+
+            // Verificar se o documento foi atualizado com sucesso
+            if (linhasAfetadas > 0) {
+                System.out.println("Documento com ID " + idDocumento + " atualizado com sucesso!");
+            } else {
+                System.out.println("Não foi possível atualizar o documento com ID " + idDocumento);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            // Fechar a conexão e o PreparedStatement
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conexao != null) conexao.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            scanner.close();
+        }
+    }
+}
